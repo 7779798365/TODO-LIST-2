@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To-Do List</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      .app {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 400px;
+      }
+
+      #taskInput {
+        width: 70%;
+        padding: 8px;
+      }
+      #priorityInput {
+        width: 23%;
+        padding: 8px;
+      }
+
+      #todoList {
+        max-width: 400px;
+        margin: 20px auto;
+        text-align: left;
+        padding: 0;
+      }
+
+      #todoList li {
+        background: #f4f4f4;
+        margin: 5px 0;
+        padding: 10px;
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      #todoList li.completed {
+        text-decoration: line-through;
+        color: #999;
+        font-size: smaller;
+      }
+      #todoList li.completed button {
+        text-decoration: line-through;
+        font-size: 12px;
+        margin: 0;
+        padding: 3px;
+      }
+      #todoList li.completed button.remove {
+        text-decoration: none;
+      }
+      #todoList li.completed button-container {
+        margin: 4px;
+      }
+
+      button {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .addtask {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        background: #28a745;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 10px;
+      }
+      button.remove {
+        background-color: red;
+      }
+
+      button:hover {
+        background-color: forestgreen;
+      }
+      button.remove:hover {
+        background-color: #b22222;
+      }
+
+      .high-priority {
+        color: red;
+        font-weight: bold;
+      }
+      .medium-priority {
+        color: #ff8a25;
+        font-weight: bold;
+      }
+
+      .low-priority {
+        color: #e5de00;
+        font-weight: bold;
+      }
+
+      .blue-high {
+        color: #000090;
+        font-weight: bold;
+      }
+      .blue-medium {
+        color: #008ddc;
+        font-weight: bold;
+      }
+      .blue-low {
+        color: #88d4ff;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <h1>To-Do List</h1>
+      <div>
+        <input type="text" id="taskInput" placeholder="Add a new task" />
+        <select id="priorityInput">
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+        <button class="addtask" onclick="addTask()">Add Task</button>
+      </div>
+      <ul id="todoList"></ul>
+      <button id="changeColorsButton">colors</button>
+    </div>
+    <script>
+      let isBlue = false;
+
+      function addTask() {
+        var taskInput = document.getElementById("taskInput");
+        var priorityInput = document.getElementById("priorityInput");
+        var taskList = document.getElementById("todoList");
+
+        if (taskInput.value.trim() !== "") {
+          var newTask = document.createElement("li");
+
+          var taskText = document.createElement("span");
+          taskText.textContent = taskInput.value + " ";
+
+          
+          if (priorityInput.value === "High") {
+            newTask.classList.add("high-priority");
+          } else if (priorityInput.value === "Medium") {
+            newTask.classList.add("medium-priority");
+          } else if (priorityInput.value === "Low") {
+            newTask.classList.add("low-priority");
+          }
+
+          var buttonContainer = document.createElement("div");
+          buttonContainer.className = "button-container"; 
+
+          var completeButton = document.createElement("button");
+          completeButton.textContent = "Complete";
+          completeButton.className = "complete";
+          completeButton.onclick = function () {
+            newTask.classList.toggle("completed");
+
+           
+            if (newTask.classList.contains("completed")) {
+              addRemoveButton();
+            } else {
+              removeRemoveButton();
+            }
+          };
+
+          var removeButton = document.createElement("button");
+          removeButton.textContent = "Remove";
+          removeButton.className = "remove";
+          removeButton.onclick = function () {
+            newTask.remove();
+          };
+
+          function addRemoveButton() {
+            if (!newTask.querySelector(".remove")) {
+              buttonContainer.appendChild(removeButton);
+            }
+          }
+
+          
+          function removeRemoveButton() {
+            const existingRemoveButton = newTask.querySelector(".remove");
+            if (existingRemoveButton) {
+              existingRemoveButton.remove();
+            }
+          }
+
+          newTask.appendChild(taskText);
+          buttonContainer.appendChild(completeButton);
+          newTask.appendChild(buttonContainer);
+
+         
+          var inserted = false;
+          for (var i = 0; i < taskList.children.length; i++) {
+            var child = taskList.children[i];
+            var childPriority = child.className;
+
+           
+            if (
+              (priorityInput.value === "High" &&
+                childPriority !== "high-priority") ||
+              (priorityInput.value === "Medium" &&
+                childPriority === "low-priority")
+            ) {
+              taskList.insertBefore(newTask, child);
+              inserted = true;
+              break;
+            }
+          }
+
+          
+          if (!inserted) {
+            taskList.appendChild(newTask);
+          }
+
+       
+          taskInput.value = "";
+        }
+      }
+
+      document
+        .getElementById("changeColorsButton")
+        .addEventListener("click", function () {
+          var highTasks = document.querySelectorAll(
+            ".high-priority, .blue-high"
+          );
+          var mediumTasks = document.querySelectorAll(
+            ".medium-priority, .blue-medium"
+          );
+          var lowTasks = document.querySelectorAll(".low-priority, .blue-low");
+
+          highTasks.forEach(function (task) {
+            if (isBlue) {
+              task.classList.remove("blue-high");
+              task.classList.add("high-priority");
+            } else {
+              task.classList.remove("high-priority");
+              task.classList.add("blue-high");
+            }
+          });
+
+          mediumTasks.forEach(function (task) {
+            if (isBlue) {
+              task.classList.remove("blue-medium");
+              task.classList.add("medium-priority");
+            } else {
+              task.classList.remove("medium-priority");
+              task.classList.add("blue-medium");
+            }
+          });
+
+          lowTasks.forEach(function (task) {
+            if (isBlue) {
+              task.classList.remove("blue-low");
+              task.classList.add("low-priority");
+            } else {
+              task.classList.remove("low-priority");
+              task.classList.add("blue-low");
+            }
+          });
+
+          isBlue = !isBlue;
+        });
+    </script>
+  </body>
+</html>
